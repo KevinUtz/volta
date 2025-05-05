@@ -26,6 +26,9 @@ global test
 from kortex_api.autogen.messages import Base_pb2
 from kortex_api.Exceptions.KServerException import KServerException
 
+
+SPEED = 20.0
+
 #
 #
 # Example core functions
@@ -50,6 +53,35 @@ def example_forward_kinematics(base):
     
     #return True
     return test_liste
+
+def example_send_joint_speeds(base):
+
+    joint_speeds = Base_pb2.JointSpeeds()
+
+    actuator_count = base.GetActuatorCount().count
+    # The 7DOF robot will spin in the same direction for 10 seconds
+    if actuator_count == 7:
+        speeds = [SPEED, 0, SPEED, 0, 0, 0, 0]
+        
+        i = 0
+        for speed in speeds:
+            joint_speed = joint_speeds.joint_speeds.add()
+            joint_speed.joint_identifier = i 
+            joint_speed.value = speed
+            joint_speed.duration = 0
+            i = i + 1
+            
+        
+        print ("Sending the joint speeds for 10 seconds...")
+        base.SendJointSpeedsCommand(joint_speeds)
+        time.sleep(10)
+        
+    print ("Stopping the robot")
+    base.Stop()
+
+    return True
+
+
 
 def example_inverse_kinematics(base):
     # get robot's pose (by using forward kinematics)
@@ -116,6 +148,26 @@ def main():
         for g in range(0,1):
             #success &= example_forward_kinematics(base)
             test=example_forward_kinematics(base)
+            
+            actuator_count = base.GetActuatorCount().count
+            print(actuator_count)
+            #
+            
+            
+            
+            
+            
+        
+            joint_speeds = Base_pb2.JointSpeeds()
+
+            
+            joint_speeds.joint_speeds.add()
+            print(joint_speeds)
+            #base.SendJointSpeedsCommand(joint_speeds)
+            example_send_joint_speeds(base)
+            
+            
+            
             #time.sleep(0.01)
         #success &= example_inverse_kinematics(base)
         
